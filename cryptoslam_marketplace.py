@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Aug 26 09:47:22 2021
+Get historical information of a series from /marketplace. Eg: https://cryptoslam.io/cryptopunks/marketplace
 
 @author: HP
 """
@@ -10,7 +10,7 @@ import pandas
 import time
 import requests
 from bs4 import BeautifulSoup
-from selenium.common.exceptions import ElementClickInterceptedException
+from selenium.common.exceptions import ElementClickInterceptedException,ElementNotInteractableException,NoSuchElementException
 from datetime import datetime, timedelta
 import os 
 from selenium.webdriver.support import expected_conditions as EC
@@ -73,6 +73,11 @@ def obtain_series_links(series_names):
     return links
 
 def get_links_from_table():
+    """
+    Collect the data where we cant reach directly from table. 
+    For ex: Seller address is written as 0x25f51d...081b5c as a string in table
+    get_links_from_table takes the embedded data (real adress of the seller 0x25f51d434915902a895380fa5d6bf0ccef081b5c) and saves it in the table.
+    """
     results_nft = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[4]/a")
     results_owner = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td["+str(owner_data_index+2)+"]/a")
     results_etherscan_link = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[2]/a")
@@ -88,7 +93,7 @@ def get_links_from_table():
         etherscan_links.append(link)
     for result in results_owner:
         address = result.get_attribute("data-original-title")
-        if address is None :
+        if address is None:
             address = ""
         owner_data.append(address)
     for result in results_nft:
@@ -101,31 +106,47 @@ def get_links_from_table():
         
 series_names =  pandas.read_pickle("series_names.pkl") # Get series names (cryptopunks, art blocks etc.)
 series_main_pages = obtain_series_links(series_names)
-
+# test = [('cryptopunks', 'https://cryptoslam.io/cryptopunks/marketplace')]
 for page in series_main_pages:
     count = 0
     # If we have it don't bother getting it again
-    
+    if os.path.exists(str(output_directory+"\\cryptoslam_"+series_names+"_marketplace.xlsx")):
+        continue
     series_names = page[0]
     urlpage = page[1]
     
+    #start browser
     options = webdriver.FirefoxOptions()
-    
-    #Headless is problematic
     # options.headless = True
     browser = webdriver.Firefox(options=options)
+    
+    # Go to page and wait loading
     browser.get(urlpage)    
     time.sleep(5)
     
+    #maximizing window is important, in order to see the whole data in the table
     browser.maximize_window() 
     table_list = []
     start = time.time()
-    ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
-    ddelement.select_by_visible_text("1000")
     
-        
-    #I'm sure this will be interchangeable with the Chrome driver too
+    # Select "show 1000 items"
+    try:
+        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
+        ddelement.select_by_visible_text("1000")
+    except ElementNotInteractableException as e:
+        print(e)
+        time.sleep(2)
+        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
+        ddelement.select_by_visible_text("1000")
+    except NoSuchElementException as e:
+        print(e)
+        time.sleep(2)
+        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
+        ddelement.select_by_visible_text("1000")
+    time.sleep(15) # Wait for the page to load
     
+    # Zoom out from the page.
+    # In order to collect whole table, we need to see all of the table in one look, therefore we zoom out.
     #Set the focus to the browser rather than the web content
     browser.set_context("chrome")
     #Create a var of the window
@@ -134,8 +155,7 @@ for page in series_main_pages:
     #Send the key combination to the window itself rather than the web content to zoom out
     #(change the "-" to "+" if you want to zoom in)
     for i in range(5):
-        win.send_keys(Keys.CONTROL + "-")
-        
+        win.send_keys(Keys.CONTROL + "-")    
     #Set the focus back to content to re-engage with page elements
     browser.set_context("content")    
     
@@ -145,25 +165,18 @@ for page in series_main_pages:
 
         soup = BeautifulSoup(browser.page_source)
         
-        
-        soup_table = soup.find_all("table")[-1]
-        soup_table = soup.find("table")
-        
+        soup_table = soup.find("table")      
         
         tables = pandas.read_html(str(soup_table))
         table = tables[0]
         
-        #Cektigin anın zamanini değişken olarak tanimlayip kaç dakika önce olduğu bilgisini çıkararak daha kolay yapabilirsin
-        columns_len = len(table.columns) 
         owner_data_index = list(table.columns).index("Owner")
-        
         
         try:
             links_and_adresses = get_links_from_table()
             etherscan_links = links_and_adresses[0]
             nft_data = links_and_adresses[1]
             owner_data = links_and_adresses[2]
-            
             
         except Exception as e: # StaleElementReferenceException 
             print(e)
@@ -176,11 +189,13 @@ for page in series_main_pages:
         table = pandas.read_html(browser.page_source)[0]
         table = table[1:]
         
+        time_as_timestamps = find_transaction_time(table["Listed"])
+        table["Listed"] = time_as_timestamps
+            
         table["Owner"] = owner_data
         table["NFT_links"] = nft_data
-        table["Listed"] = etherscan_links
+        table["etherscan_links"] = etherscan_links # This can contain ronin or wax data too. 
         
-        # table["Minted"] = time_as_timestamps
         if "Unnamed: 0" in table.columns:
             table.drop(labels = ["Unnamed: 0"],axis=1,inplace=True)
         
@@ -196,23 +211,30 @@ for page in series_main_pages:
             element = browser.find_element_by_xpath(x_path)
             browser.execute_script("arguments[0].click();", element)
         
-         
         try:
-            t = table_list[-1].loc[0:1]
-            y = table_list[-2].loc[0:1]
-            if len(table) == 0 or t.equals(y):
+            t = table_list[-1].loc[0:1]["etherscan_links"]
+            y = table_list[-2].loc[0:1]["etherscan_links"]
+            if len(table) <= 1 or  t.equals(y):
                 break
         except IndexError:
             pass
         
         time.sleep(10)
-        count +=1
-        print("table count "+ str(count))
-        end = time.time()
-        print(end-start)
+        
+    
     final_table = pandas.concat(table_list)
-    final_table.drop_duplicates(inplace=True)
-    final_table.to_excel(output_directory+"\\cryptoslam_"+series_names+"marketplace.xlsx")
+    
+    #Drop duplicates found in every column except timestamps
+    cols = list(final_table)
+    cols.remove('Listed')
+    t = final_table.drop_duplicates(subset=cols,inplace=False)
+
+
+    t.drop_duplicates(inplace=True)
+    final_table.to_excel(output_directory+"\\cryptoslam_"+series_names+"_marketplace.xlsx")
+    browser.quit() 
+    
     end = time.time()
-    # browser.quit() 
-    print(end - start)
+    print(series_names + " marketplace data took " + str(end-start) + " seconds")
+    
+   

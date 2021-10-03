@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Aug 26 09:47:22 2021
-
+Get historical information of a series from /mints. Eg: https://cryptoslam.io/cryptopunks/mints
 @author: HP
 """
 from selenium import webdriver
@@ -10,16 +9,15 @@ import pandas
 import time
 import requests
 from bs4 import BeautifulSoup
-from selenium.common.exceptions import ElementClickInterceptedException,StaleElementReferenceException,ElementNotInteractableException
+from selenium.common.exceptions import ElementClickInterceptedException,StaleElementReferenceException,ElementNotInteractableException,NoSuchElementException
 from datetime import datetime, timedelta
 import os 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-output_directory = dir_path+"\\cryptoslam_mints" # Data will be printed out here
+output_directory = dir_path+"\\cryptoslam_mints" # Data will be outputed here
 
 if not os.path.exists(output_directory): # create the folder if not exists already
     os.mkdir(output_directory)
-
 
 def get_transaction_time_from_etherscan(etherscan_links):
     transaction_time_list = list()
@@ -60,6 +58,10 @@ def find_transaction_time(table_time_column): # NOT ACCURATE
         timestamps.append(d)
     return timestamps    
 def obtain_series_links(series_names):
+    """
+    obtain links of mint pages from series names.
+    returns a list
+    """
     links = []
     for product in series_names[0]:
         product = product.lower()
@@ -68,10 +70,12 @@ def obtain_series_links(series_names):
         series_link = "https://cryptoslam.io/" + product + "/mints" 
         links.append((product,series_link))
     return links
+
 series_names =  pandas.read_pickle("series_names.pkl") # Get series names (cryptopunks, art blocks etc.)
 series_main_pages = obtain_series_links(series_names) # contains tuples [("art-blocks","https://cryptoslam.io/art-blocks/mints"),(,)...]
+test = [('cryptopunks', 'https://cryptoslam.io/cryptopunks/mints')]
 
-for page in series_main_pages: 
+for page in test: 
     series_names = page[0]
     urlpage = page[1]
     
@@ -80,7 +84,7 @@ for page in series_main_pages:
         continue
     
     options = webdriver.FirefoxOptions()
-    options.headless = True
+    # options.headless = True
     browser = webdriver.Firefox(options=options)
     
     browser.get(urlpage)
@@ -95,7 +99,12 @@ for page in series_main_pages:
         ddelement.select_by_visible_text("1000")
     except ElementNotInteractableException as e:
         print(e)
-        time.sleep(15)
+        time.sleep(2)
+        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
+        ddelement.select_by_visible_text("1000")
+    except NoSuchElementException as e:
+        print(e)
+        time.sleep(2)
         ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
         ddelement.select_by_visible_text("1000")
     time.sleep(10) # wait for the page to load 1000 rows
@@ -111,7 +120,6 @@ for page in series_main_pages:
         tables = pandas.read_html(str(soup_table))
         table = tables[0]
         
-        #Cektigin anın zamanini değişken olarak tanimlayip kaç dakika önce olduğu bilgisini çıkararak daha kolay yapabilirsin
         columns_len = len(table.columns) 
         
         results_original_owner = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td["+str(columns_len+1)+"]/a")
@@ -168,10 +176,9 @@ for page in series_main_pages:
         table["NFT_links"] = nft_data
         
         
-        # transaction_times  = find_transaction_time(table["Minted"])
-        table["Minted"] = etherscan_links
+        table["Minted_link"] = etherscan_links
+        table["Minted"] = find_transaction_time(table["Minted"])
         
-        # table["Minted"] = time_as_timestamps
         if "Unnamed: 0" in table.columns:
             table.drop(labels = ["Unnamed: 0"],axis=1,inplace=True)
         
@@ -189,9 +196,9 @@ for page in series_main_pages:
         
          
         try:
-            t = table_list[-1].loc[0:1]
-            y = table_list[-2].loc[0:1]
-            if len(table) == 0 or t.equals(y):
+            t = table_list[-1].loc[0:1]["Minted_link"]
+            y = table_list[-2].loc[0:1]["Minted_link"]
+            if len(table) <= 1 or t.equals(y):
                 break
         except IndexError:
             pass
@@ -200,8 +207,11 @@ for page in series_main_pages:
 
         
     final_table = pandas.concat(table_list)
-    t  = final_table.drop_duplicates(inplace=True)
+    cols = list(final_table)
+    cols.remove('Minted')
+    t = final_table.drop_duplicates(subset=cols,inplace=False)
+    
     browser.quit()
-    final_table.to_excel(output_directory+"\\cryptoslam_"+series_names+"_mints.xlsx")
+    t.to_excel(output_directory+"\\cryptoslam_"+series_names+"_mints.xlsx")
     end = time.time()
     print(end - start)

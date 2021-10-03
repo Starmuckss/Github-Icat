@@ -43,7 +43,11 @@ def obtain_series_links(series_names):
 
 series_names =  pandas.read_pickle("series_names.pkl") # Get series names (cryptopunks, art blocks etc.)
 series_main_pages = obtain_series_links(series_names)
+options = webdriver.FirefoxOptions()
+# options.headless = True
+options.add_argument("--start-maximized")
 
+browser = webdriver.Firefox(options=options)
 for page in series_main_pages:
     series_name = page[0]
     if os.path.exists(output_directory+"\\cryptoslam_"+page[0]+".xlsx"):
@@ -51,12 +55,7 @@ for page in series_main_pages:
     
     urlpage = page[1]
 
-    
-    options = webdriver.FirefoxOptions()
-    # options.headless = True
-    options.add_argument("--start-maximized")
-
-    browser = webdriver.Firefox(options=options)
+   
     browser.get(urlpage)
     browser.maximize_window() 
     time.sleep(10)
