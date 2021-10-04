@@ -63,7 +63,7 @@ except FileNotFoundError:
 true_alexa_ranks = list()
 
 # Get Alexa Rank from alexa.com
-for homepage in webpages_for_alexa["webpages"]:
+for homepage in webpages_for_alexa["Serie_link"]:
     if isinstance(homepage , float):
         true_alexa_ranks.append("")
 
