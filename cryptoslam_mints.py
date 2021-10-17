@@ -95,17 +95,17 @@ for page in test:
     
     # Get 1000 rows (only do it once per series)
     try:
-        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
+        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
         ddelement.select_by_visible_text("1000")
     except ElementNotInteractableException as e:
         print(e)
         time.sleep(2)
-        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
+        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
         ddelement.select_by_visible_text("1000")
     except NoSuchElementException as e:
         print(e)
         time.sleep(2)
-        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
+        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
         ddelement.select_by_visible_text("1000")
     time.sleep(10) # wait for the page to load 1000 rows
     
@@ -122,9 +122,9 @@ for page in test:
         
         columns_len = len(table.columns) 
         
-        results_original_owner = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td["+str(columns_len+1)+"]/a")
-        results_nft = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[3]/a")
-        results_etherscan_link = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[2]/a")
+        results_original_owner = browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td["+str(columns_len+1)+"]/a")
+        results_nft = browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[3]/a")
+        results_etherscan_link = browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[2]/a")
 
         
         original_owner_data = list()
@@ -148,9 +148,9 @@ for page in test:
         except StaleElementReferenceException as e:
             print(e)
             time.sleep(10)
-            results_original_owner = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td["+str(columns_len+1)+"]/a")
-            results_nft = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[3]/a")
-            results_etherscan_link = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[2]/a")
+            results_original_owner = browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td["+str(columns_len+1)+"]/a")
+            results_nft = browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[3]/a")
+            results_etherscan_link = browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[2]/a")
             
             original_owner_data = list()
             nft_data = list()
@@ -186,10 +186,10 @@ for page in test:
         browser.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
     
         try:
-            browser.find_element_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[4]/div[2]/div/ul/li[3]/a").click()
+            browser.find_element_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[4]/div[2]/div/ul/li[3]/a").click()
         except ElementClickInterceptedException as e:
             #print(e)
-            x_path = "/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[4]/div[2]/div/ul/li[3]/a"
+            x_path = "/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[4]/div[2]/div/ul/li[3]/a"
             # browser.find_element_by_xpath(x_path).click()
             element = browser.find_element_by_xpath(x_path)
             browser.execute_script("arguments[0].click();", element)

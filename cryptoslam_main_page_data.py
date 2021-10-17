@@ -77,8 +77,8 @@ for page in series_main_pages:
             top_sellers_table = table 
     
     # Get the tables of top buyers and sellers
-    result_buyers =browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div[2]/div[2]/div[3]/div[1]/div/div[3]/div/div[2]/div/table/tbody/tr/td[1]/a")
-    result_sellers =browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div[2]/div[2]/div[3]/div[2]/div/div[3]/div/div[2]/div/table/tbody/tr/td[1]/a")
+    result_buyers =browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div[2]/div[2]/div[3]/div[1]/div/div[3]/div/div[2]/div/table/tbody/tr/td[1]/a")
+    result_sellers =browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div[2]/div[2]/div[3]/div[2]/div/div[3]/div/div[2]/div/table/tbody/tr/td[1]/a")
     
     # Sometimes the pages loads partially, and I cant gather top seller and buyer data,
     # If i cant gather data, I reload the page. try this until we gather the tables, or we tried atleast 5 times
@@ -87,8 +87,8 @@ for page in series_main_pages:
        
         browser.refresh()
         time.sleep(5)
-        result_buyers =browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div[2]/div[2]/div[4]/div/div[3]/div/div[2]/div/table/tbody/tr/td[1]")
-        result_sellers =browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div[2]/div[2]/div[5]/div/div[3]/div/div[2]/div/table/tbody/tr/td[1]/a")
+        result_buyers =browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div[2]/div[2]/div[3]/div[1]/div/div[3]/div/div[2]/div/table/tbody/tr/td[1]/a")
+        result_sellers =browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div[2]/div[2]/div[3]/div[2]/div/div[3]/div/div[2]/div/table/tbody/tr/td[1]/a")
         try_refreshing +=1
         if try_refreshing == 5:
             break
@@ -119,4 +119,4 @@ for page in series_main_pages:
 
     top_buyers_table.to_excel(output_directory+"\\cryptoslam_"+page[0]+"_top_buyers.xlsx")
     top_sellers_table.to_excel(output_directory+"\\cryptoslam_"+page[0]+"_top_sellers.xlsx")
-    browser.quit() # Kill the browser
+browser.quit() # Kill the browser

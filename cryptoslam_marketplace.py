@@ -78,9 +78,9 @@ def get_links_from_table():
     For ex: Seller address is written as 0x25f51d...081b5c as a string in table
     get_links_from_table takes the embedded data (real adress of the seller 0x25f51d434915902a895380fa5d6bf0ccef081b5c) and saves it in the table.
     """
-    results_nft = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[4]/a")
-    results_owner = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td["+str(owner_data_index+2)+"]/a")
-    results_etherscan_link = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[2]/a")
+    results_nft = browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[4]/a")
+    results_owner = browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td["+str(owner_data_index+2)+"]/a")
+    results_etherscan_link = browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[2]/a")
     
     owner_data = list()
     nft_data = list()
@@ -131,17 +131,17 @@ for page in series_main_pages:
     
     # Select "show 1000 items"
     try:
-        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
+        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select')) # xpath: dropdown menu with 50 written on it
         ddelement.select_by_visible_text("1000")
     except ElementNotInteractableException as e:
         print(e)
         time.sleep(2)
-        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
+        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select')) # xpath: dropdown menu with 50 written on it
         ddelement.select_by_visible_text("1000")
     except NoSuchElementException as e:
         print(e)
         time.sleep(2)
-        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
+        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select')) # xpath: dropdown menu with 50 written on it
         ddelement.select_by_visible_text("1000")
     time.sleep(15) # Wait for the page to load
     
@@ -203,10 +203,10 @@ for page in series_main_pages:
         browser.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
     
         try:
-            browser.find_element_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[4]/div[2]/div/ul/li[3]/a").click()
+            browser.find_element_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[4]/div[2]/div/ul/li[3]/a").click() # Next page button
         except ElementClickInterceptedException as e:
             #print(e)
-            x_path = "/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[4]/div[2]/div/ul/li[3]/a"
+            x_path = "/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[4]/div[2]/div/ul/li[3]/a" # Next page button
             # browser.find_element_by_xpath(x_path).click()
             element = browser.find_element_by_xpath(x_path)
             browser.execute_script("arguments[0].click();", element)
