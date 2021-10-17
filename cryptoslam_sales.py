@@ -93,10 +93,10 @@ def get_links_from_table():
     For ex: Seller address is written as 0x25f51d...081b5c as a string in table
     get_links_from_table takes the embedded data (real adress of the seller 0x25f51d434915902a895380fa5d6bf0ccef081b5c) and saves it in the table.
     """
-    results_buyer = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td["+str(columns_len + 1)+"]/a")
-    results_seller = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td["+str(columns_len)+"]/a")
-    results_nft = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[3]/a")
-    results_etherscan_link = browser.find_elements_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[2]/a")
+    results_buyer = browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td["+str(columns_len + 1)+"]/a")
+    results_seller = browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td["+str(columns_len)+"]/a")
+    results_nft = browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[3]/a")
+    results_etherscan_link = browser.find_elements_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[3]/div/table/tbody/tr/td[2]/a")
     
     #results are FirefoxWebElement objects. We can get what we need from them.
     
@@ -150,23 +150,25 @@ for page in series_main_pages:
     table_list = [] # Whole data for pages will be contained in a list of tables
     start = time.time()
     
+    time.sleep(3)
+    
     # "//html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select" These type of references to
     # the web elements are Xpaths and can be obtained by ctrl+shift+I in the webpage. go on a object you wanna take,
     # right click, from "copy" select copy xpath
     
     # Click show 1000 elements on the table
     try:
-        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
+        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select')) # 50 yazan dropdown 
         ddelement.select_by_visible_text("1000")
     except ElementNotInteractableException as e:
         print(e)
         time.sleep(2)
-        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
+        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
         ddelement.select_by_visible_text("1000")
     except NoSuchElementException as e:
         print(e)
         time.sleep(2)
-        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
+        ddelement= Select(browser.find_element_by_xpath('/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[1]/div[1]/div/label/select'))
         ddelement.select_by_visible_text("1000")
     time.sleep(15) # Wait for the page to load
     
@@ -201,11 +203,11 @@ for page in series_main_pages:
             
         # Click to the next button to go to the next page    
         try:
-            browser.find_element_by_xpath("/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[4]/div[2]/div/ul/li[3]/a").click()
+            browser.find_element_by_xpath("/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[4]/div[2]/div/ul/li[3]/a").click() # Button with "Next" written on it
         except ElementClickInterceptedException as e:
             browser.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
     
-            x_path = "/html/body/div[2]/div/div[4]/div/div/div/div[3]/div[1]/div[4]/div[2]/div/ul/li[3]/a"
+            x_path = "/html/body/div[2]/div/div[5]/div/div/div/div[3]/div[1]/div[4]/div[2]/div/ul/li[3]/a" # Button with "Next" written on it
             element = browser.find_element_by_xpath(x_path)
             browser.execute_script("arguments[0].click();", element)
         
